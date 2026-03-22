@@ -15,6 +15,16 @@ Use this before/after copying the repo to a **Google Compute Engine** VM.
 | **Firestore / GCS** | Verify | VM service account or `GOOGLE_APPLICATION_CREDENTIALS`; roles: Firestore + Storage |
 | **Secrets in git** | Risk | DB password & JWT in `config-repo` — move to **env vars** or **Secret Manager** for production |
 
+## Order service: “Unexpected error” on VM but OK on localhost
+
+`order-service` uses **Firestore**. On localhost you often use **Application Default Credentials** from `gcloud auth application-default login` or a JSON key. On a **GCE VM** you must either:
+
+- Attach a **service account** to the VM with **Cloud Datastore User** (or broader Firestore) + correct **project** (`FIRESTORE_PROJECT_ID` / `firestore.project-id`), or  
+- Set **`GOOGLE_APPLICATION_CREDENTIALS`** to a service-account JSON that can access that Firestore project.
+
+Wrong/missing credentials usually throw **PERMISSION_DENIED** or **Unauthenticated** — the API now returns that message in the JSON `message` field (and logs the stack trace).  
+Also ensure **`FIRESTORE_PROJECT_ID`** matches the project where your `orders` collection lives (local `application.yml` default matches `config-repo`: `buddhi-cloud`).
+
 ## Listen on all interfaces (external IP)
 
 Shared `config-repo/application.yml` sets `server.address: 0.0.0.0` so each service accepts traffic on the VM **external** IP (e.g. `35.194.27.132`), not only `127.0.0.1`. Local `application.yml` files under each module match this for runs without Config Server.

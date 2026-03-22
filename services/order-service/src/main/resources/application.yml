@@ -5,12 +5,16 @@ spring:
     import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
 
 firestore:
-  project-id: ${FIRESTORE_PROJECT_ID:cloud-module-490703}
+  # Keep default aligned with config-repo/order-service.yml (VM falls back here if Config Server is late)
+  project-id: ${FIRESTORE_PROJECT_ID:buddhi-cloud}
   orders-collection: ${FIRESTORE_ORDERS_COLLECTION:orders}
 
 server:
   address: 0.0.0.0
   port: 8083
+  error:
+    include-message: always
+    include-binding-errors: always
 
 management:
   endpoints:
