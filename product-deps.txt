@@ -1,0 +1,4 @@
+com.ijse.eca:product-service:jar:0.1.0-SNAPSHOT
++- com.google.cloud:google-cloud-firestore:jar:3.30.4:compile
++- com.google.api:gax:jar:2.59.1:compile
+\- com.google.api:gax-grpc:jar:2.59.1:compile

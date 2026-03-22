@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: user-service
+  config:
+    import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
+  datasource:
+    url: jdbc:mysql://34.171.196.72:3306/userdb?useSSL=true&requireSSL=true&useInformationSchema=false
+    username: root
+    password: Mysql_1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    # default to MySQL8 dialect instead of H2 so Hibernate won't expect H2 sequence metadata
+    database-platform: ${USER_DB_DIALECT:org.hibernate.dialect.MySQL8Dialect}
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 8081
+security:
+  jwt:
+    secret: ${JWT_SECRET:12312312312312212212121211212221211211}
+    issuer: ${JWT_ISSUER:eca-mini-ecommerce}
+    expires-minutes: ${JWT_EXPIRES_MINUTES:240}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

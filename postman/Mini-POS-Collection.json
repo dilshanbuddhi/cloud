@@ -1,0 +1,632 @@
+{
+	"info": {
+		"_postman_id": "eca-mini-pos-collection",
+		"name": "ECA Mini POS - Cloud Assignment",
+		"description": "Full API collection for the Mini POS microservices project.\n\nServices:\n- Config Server (8888)\n- Eureka Server (8761)\n- API Gateway (8080)\n- User Service (8081) - Cloud SQL / H2\n- Product Service (8082) - Cloud Firestore + GCS Bucket\n- Order Service (8083) - Cloud Firestore\n\nAll requests go through the API Gateway at port 8080.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "gateway_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "product_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "order_id",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Health Checks",
+			"item": [
+				{
+					"name": "Config Server Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8888/actuator/health",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8888",
+							"path": ["actuator", "health"]
+						}
+					}
+				},
+				{
+					"name": "Eureka Server Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8761/actuator/health",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8761",
+							"path": ["actuator", "health"]
+						}
+					}
+				},
+				{
+					"name": "API Gateway Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gateway_url}}/actuator/health",
+							"host": ["{{gateway_url}}"],
+							"path": ["actuator", "health"]
+						}
+					}
+				},
+				{
+					"name": "User Service Health (direct)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8081/actuator/health",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8081",
+							"path": ["actuator", "health"]
+						}
+					}
+				},
+				{
+					"name": "Product Service Health (direct)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8082/actuator/health",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8082",
+							"path": ["actuator", "health"]
+						}
+					}
+				},
+				{
+					"name": "Order Service Health (direct)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8083/actuator/health",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8083",
+							"path": ["actuator", "health"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Auth (User Service via Gateway)",
+			"item": [
+				{
+					"name": "Register User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('token', json.token);",
+									"    // Decode JWT to get user ID",
+									"    var payload = JSON.parse(atob(json.token.split('.')[1]));",
+									"    pm.collectionVariables.set('user_id', payload.sub);",
+									"    pm.test('Registration successful', function() {",
+									"        pm.expect(json.token).to.be.a('string');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"POS Admin\",\n    \"email\": \"admin@minipos.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/auth/register",
+							"host": ["{{gateway_url}}"],
+							"path": ["auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Login User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('token', json.token);",
+									"    var payload = JSON.parse(atob(json.token.split('.')[1]));",
+									"    pm.collectionVariables.set('user_id', payload.sub);",
+									"    pm.test('Login successful', function() {",
+									"        pm.expect(json.token).to.be.a('string');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@minipos.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/auth/login",
+							"host": ["{{gateway_url}}"],
+							"path": ["auth", "login"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Users (via Gateway)",
+			"item": [
+				{
+					"name": "Get User by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{gateway_url}}/users/{{user_id}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["users", "{{user_id}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Products (via Gateway - Firestore + GCS)",
+			"item": [
+				{
+					"name": "Create Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('product_id', json.id);",
+									"    pm.test('Product created', function() {",
+									"        pm.expect(json.name).to.be.a('string');",
+									"        pm.expect(json.price).to.be.above(0);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Coca Cola 500ml\",\n    \"price\": 2.50\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/products",
+							"host": ["{{gateway_url}}"],
+							"path": ["products"]
+						}
+					}
+				},
+				{
+					"name": "Create Product - Chips",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    pm.test('Product created', function() {",
+									"        pm.expect(json.id).to.be.a('string');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Potato Chips\",\n    \"price\": 3.99\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/products",
+							"host": ["{{gateway_url}}"],
+							"path": ["products"]
+						}
+					}
+				},
+				{
+					"name": "Create Product - Water",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    pm.test('Product created', function() {",
+									"        pm.expect(json.id).to.be.a('string');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Mineral Water 1L\",\n    \"price\": 1.50\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/products",
+							"host": ["{{gateway_url}}"],
+							"path": ["products"]
+						}
+					}
+				},
+				{
+					"name": "List All Products",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Products retrieved', function() {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"    pm.expect(pm.response.json()).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{gateway_url}}/products",
+							"host": ["{{gateway_url}}"],
+							"path": ["products"]
+						}
+					}
+				},
+				{
+					"name": "Upload Product Image (GCS Bucket)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": ""
+								}
+							]
+						},
+						"url": {
+							"raw": "{{gateway_url}}/products/{{product_id}}/image",
+							"host": ["{{gateway_url}}"],
+							"path": ["products", "{{product_id}}", "image"]
+						},
+						"description": "Upload a product image. The image is stored in a GCS Bucket.\nSelect a file in the 'file' field before sending."
+					}
+				}
+			]
+		},
+		{
+			"name": "Orders (via Gateway - Firestore)",
+			"item": [
+				{
+					"name": "Place Order",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('order_id', json.id);",
+									"    pm.test('Order placed', function() {",
+									"        pm.expect(json.id).to.be.a('string');",
+									"        pm.expect(json.quantity).to.equal(2);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": {{user_id}},\n    \"productId\": \"{{product_id}}\",\n    \"quantity\": 2\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/orders",
+							"host": ["{{gateway_url}}"],
+							"path": ["orders"]
+						}
+					}
+				},
+				{
+					"name": "Place Order - Different Quantity",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    pm.test('Order placed', function() {",
+									"        pm.expect(json.id).to.be.a('string');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": {{user_id}},\n    \"productId\": \"{{product_id}}\",\n    \"quantity\": 5\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/orders",
+							"host": ["{{gateway_url}}"],
+							"path": ["orders"]
+						}
+					}
+				},
+				{
+					"name": "List Orders by User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Orders retrieved', function() {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"    pm.expect(pm.response.json()).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{gateway_url}}/orders?userId={{user_id}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["orders"],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{user_id}}"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Config Server",
+			"item": [
+				{
+					"name": "Get User Service Config",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8888/user-service/default",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8888",
+							"path": ["user-service", "default"]
+						}
+					}
+				},
+				{
+					"name": "Get Product Service Config",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8888/product-service/default",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8888",
+							"path": ["product-service", "default"]
+						}
+					}
+				},
+				{
+					"name": "Get Order Service Config",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8888/order-service/default",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8888",
+							"path": ["order-service", "default"]
+						}
+					}
+				},
+				{
+					"name": "Get API Gateway Config",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8888/api-gateway/default",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8888",
+							"path": ["api-gateway", "default"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Eureka Service Registry",
+			"item": [
+				{
+					"name": "List Registered Apps",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8761/eureka/apps",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8761",
+							"path": ["eureka", "apps"]
+						}
+					}
+				}
+			]
+		}
+	]
+}

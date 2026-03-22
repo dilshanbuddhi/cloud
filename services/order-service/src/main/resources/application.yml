@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: order-service
+  config:
+    import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
+
+firestore:
+  project-id: ${FIRESTORE_PROJECT_ID:cloud-module-490703}
+  orders-collection: ${FIRESTORE_ORDERS_COLLECTION:orders}
+
+server:
+  port: 8083
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

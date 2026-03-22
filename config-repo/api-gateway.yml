@@ -1,0 +1,49 @@
+# language: yaml
+# Spring Cloud Gateway 2025 + spring-cloud-starter-gateway-server-webflux:
+# routes / CORS / default-filters live under spring.cloud.gateway.server.webflux
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      server:
+        webflux:
+          default-filters:
+            - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+          globalcors:
+            corsConfigurations:
+              '[/**]':
+                allowedOrigins: "*"
+                allowedMethods: "*"
+                allowedHeaders: "*"
+          routes:
+            - id: user-auth
+              uri: lb://user-service
+              predicates:
+                - Path=/auth/**
+            - id: user-service
+              uri: lb://user-service
+              predicates:
+                - Path=/users/**
+            - id: product-service
+              uri: lb://product-service
+              predicates:
+                - Path=/products/**
+            - id: order-service
+              uri: lb://order-service
+              predicates:
+                - Path=/orders/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway,routes
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty.http.client: DEBUG

@@ -1,0 +1,23 @@
+# Maven
+**/target/
+.mvn/wrapper/maven-wrapper.jar
+
+# IntelliJ / Eclipse
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local runtime data
+data/
+logs/
+
+# Secrets (never commit real keys)
+**/*service-account*.json
+**/*credentials*.json
+**/.env

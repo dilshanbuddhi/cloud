@@ -1,0 +1,92 @@
+{
+  "info": {
+    "_postman_id": "d2f9a1a0-0000-4000-8000-000000000000",
+    "name": "API Gateway - Full Services",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Postman collection that calls all services via the API Gateway at http://localhost:8080"
+  },
+  "item": [
+    {
+      "name": "Auth - Register",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Alice\",\n  \"email\": \"alice@example.com\",\n  \"password\": \"secret123\"\n}"
+        },
+        "url": { "raw": "http://localhost:8080/auth/register", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["auth","register"] }
+      }
+    },
+    {
+      "name": "Auth - Login",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"email\": \"alice@example.com\",\n  \"password\": \"secret123\"\n}" },
+        "url": { "raw": "http://localhost:8080/auth/login", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["auth","login"] }
+      }
+    },
+    {
+      "name": "Users - Get by Id",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "http://localhost:8080/users/1", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["users","1"] }
+      }
+    },
+    {
+      "name": "Products - Create",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Sample Product\",\n  \"price\": 19.99\n}" },
+        "url": { "raw": "http://localhost:8080/products", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["products"] }
+      }
+    },
+    {
+      "name": "Products - List",
+      "request": { "method": "GET", "url": { "raw": "http://localhost:8080/products", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["products"] } }
+    },
+    {
+      "name": "Products - Upload Image",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "multipart/form-data" } ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "file", "type": "file", "src": "" }
+          ]
+        },
+        "url": { "raw": "http://localhost:8080/products/{{productId}}/image", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["products","{{productId}}","image"] }
+      },
+      "description": "Set productId variable and attach a file to upload."
+    },
+    {
+      "name": "Products - Get Image (local)",
+      "request": { "method": "GET", "url": { "raw": "http://localhost:8080/products/images/{{imageName}}", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["products","images","{{imageName}}"] } },
+      "description": "Only works when storage provider is local."
+    },
+    {
+      "name": "Orders - Create",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"userId\": 1,\n  \"productId\": \"oSzebaCAn7EAGx069wun\",\n  \"quantity\": 2\n}" },
+        "url": { "raw": "http://localhost:8080/orders", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["orders"] }
+      }
+    },
+    {
+      "name": "Orders - List by User",
+      "request": { "method": "GET", "url": { "raw": "http://localhost:8080/orders?userId=1", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["orders"], "query": [ { "key": "userId", "value": "1" } ] } }
+    }
+  ],
+  "event": [],
+  "variable": [
+    { "key": "productId", "value": "oSzebaCAn7EAGx069wun" },
+    { "key": "imageName", "value": "sample.jpg" }
+  ]
+}
+

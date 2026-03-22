@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: product-service
+  config:
+    import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
+
+firestore:
+  project-id: ${FIRESTORE_PROJECT_ID:buddhi-cloud}
+  products-collection: ${FIRESTORE_PRODUCTS_COLLECTION:products}
+
+server:
+  port: 8082
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

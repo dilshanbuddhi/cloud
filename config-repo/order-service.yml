@@ -1,0 +1,22 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: order-service
+
+firestore:
+  project-id: ${FIRESTORE_PROJECT_ID:buddhi-cloud}
+  orders-collection: ${FIRESTORE_ORDERS_COLLECTION:orders}
+
+storage:
+  provider: ${STORAGE_PROVIDER:gcs} # local | gcs
+  gcs:
+    project-id: ${GCS_PROJECT_ID:buddhi-cloud}
+    bucket: ${GCS_BUCKET:prod-product12}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

@@ -1,0 +1,27 @@
+server:
+  port: 8082
+  error:
+    include-message: always
+    include-binding-errors: always
+
+spring:
+  application:
+    name: product-service
+
+firestore:
+  project-id: ${FIRESTORE_PROJECT_ID:buddhi-cloud}
+  products-collection: ${FIRESTORE_PRODUCTS_COLLECTION:products}
+
+storage:
+  provider: ${STORAGE_PROVIDER:gcs} # local | gcs
+  local:
+    base-dir: ${LOCAL_STORAGE_DIR:./data/uploads}
+  gcs:
+    project-id: ${GCS_PROJECT_ID:buddhi-cloud}
+    bucket: ${GCS_BUCKET:prod-product12}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
