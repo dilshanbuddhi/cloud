@@ -5,6 +5,7 @@ spring:
     import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
 
 server:
+  address: 0.0.0.0
   port: 8761
 
 eureka:

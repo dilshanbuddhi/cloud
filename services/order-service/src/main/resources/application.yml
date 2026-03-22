@@ -9,6 +9,7 @@ firestore:
   orders-collection: ${FIRESTORE_ORDERS_COLLECTION:orders}
 
 server:
+  address: 0.0.0.0
   port: 8083
 
 management:

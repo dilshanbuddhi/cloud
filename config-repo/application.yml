@@ -1,4 +1,7 @@
 # Shared defaults served by Config Server
+# Bind to all interfaces so VM external IP works (e.g. 35.194.27.132). GCP firewall must allow ports.
+server:
+  address: 0.0.0.0
 
 spring:
   jackson:

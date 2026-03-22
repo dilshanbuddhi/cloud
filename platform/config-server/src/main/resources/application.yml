@@ -10,6 +10,7 @@ spring:
           search-locations: ${CONFIG_REPO_PATH:file:./config-repo,file:../config-repo,file:../../config-repo}
 
 server:
+  address: 0.0.0.0
   port: 8888
 
 management:

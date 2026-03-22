@@ -15,6 +15,12 @@ Use this before/after copying the repo to a **Google Compute Engine** VM.
 | **Firestore / GCS** | Verify | VM service account or `GOOGLE_APPLICATION_CREDENTIALS`; roles: Firestore + Storage |
 | **Secrets in git** | Risk | DB password & JWT in `config-repo` — move to **env vars** or **Secret Manager** for production |
 
+## Listen on all interfaces (external IP)
+
+Shared `config-repo/application.yml` sets `server.address: 0.0.0.0` so each service accepts traffic on the VM **external** IP (e.g. `35.194.27.132`), not only `127.0.0.1`. Local `application.yml` files under each module match this for runs without Config Server.
+
+You still need a **VPC firewall rule** allowing TCP to the ports you expose (at minimum **8080** for the gateway).
+
 ## GCP firewall (VPC)
 
 Allow inbound (adjust source IPs for production):
