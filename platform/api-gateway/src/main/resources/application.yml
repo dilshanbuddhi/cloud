@@ -3,6 +3,37 @@ spring:
     name: api-gateway
   config:
     import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
+  cloud:
+    gateway:
+      server:
+        webflux:
+          # Fallback when Config Server is down or not reachable (VM / first boot).
+          # Remote api-gateway.yml overrides/merges when config loads successfully.
+          default-filters:
+            - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+          globalcors:
+            corsConfigurations:
+              '[/**]':
+                allowedOrigins: "*"
+                allowedMethods: "*"
+                allowedHeaders: "*"
+          routes:
+            - id: user-auth
+              uri: lb://user-service
+              predicates:
+                - Path=/auth/**
+            - id: user-service
+              uri: lb://user-service
+              predicates:
+                - Path=/users/**
+            - id: product-service
+              uri: lb://product-service
+              predicates:
+                - Path=/products/**
+            - id: order-service
+              uri: lb://order-service
+              predicates:
+                - Path=/orders/**
 
 server:
   address: 0.0.0.0
@@ -12,4 +43,4 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,gateway,routes
