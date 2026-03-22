@@ -1,20 +1,34 @@
 /*
-  PM2 ecosystem file for non-containerized VM deployments.
+  PM2 ecosystem file for non-containerized VM deployments (e.g. GCP GCE).
 
   Usage:
     1) Build all jars: mvn -f <service>/pom.xml -DskipTests package
-    2) Copy repo to VM (or git clone with submodules if using polyrepo)
-    3) pm2 start pm2/ecosystem.config.cjs
+    2) Copy repo to VM (or git clone)
+    3) Optional: source deploy/gcp-vm.env (see docs/GCP-VM-DEPLOYMENT.md)
+    4) pm2 start pm2/ecosystem.config.cjs
 
-  Environment variables (set in the shell or via PM2):
-    CONFIG_SERVER_URL=http://<config-server-ip>:8888
-    EUREKA_URL=http://<eureka-ip>:8761/eureka
-    CONFIG_REPO_PATH=/opt/app/config-repo
+  Environment variables (export before pm2 start, or set in shell profile):
+    CONFIG_SERVER_URL=http://127.0.0.1:8888
+    EUREKA_URL=http://127.0.0.1:8761/eureka
+    CONFIG_REPO_PATH=../../config-repo   (or absolute path on VM)
+    STORAGE_PROVIDER=gcs                  (default below; was wrongly forced to local)
+    GOOGLE_APPLICATION_CREDENTIALS=...   (if not using GCE metadata SA)
+
+  VM public IP example: 35.194.27.132 — users open http://<IP>:8080/
 
   Notes:
-    - This assumes each service produces a single runnable jar in target/.
-    - Build/run with JDK 25 (match pom.xml). Ensure `java` on PATH is 25+ or set JAVA_HOME in PM2 `env` per app if needed.
+    - JDK 25 required (match pom.xml). Set JAVA_HOME if `java` is not 25+.
 */
+
+const CONFIG_SERVER_URL = process.env.CONFIG_SERVER_URL || 'http://127.0.0.1:8888'
+const EUREKA_URL = process.env.EUREKA_URL || 'http://127.0.0.1:8761/eureka'
+const CONFIG_REPO_PATH = process.env.CONFIG_REPO_PATH || '../../config-repo'
+const STORAGE_PROVIDER = process.env.STORAGE_PROVIDER || 'gcs'
+
+const commonServiceEnv = {
+  CONFIG_SERVER_URL,
+  EUREKA_URL
+}
 
 module.exports = {
   apps: [
@@ -29,7 +43,7 @@ module.exports = {
       out_file: '../../logs/config-server.out.log',
       error_file: '../../logs/config-server.err.log',
       env: {
-        CONFIG_REPO_PATH: '../../config-repo'
+        CONFIG_REPO_PATH
       }
     },
     {
@@ -43,7 +57,7 @@ module.exports = {
       out_file: '../../logs/eureka-server.out.log',
       error_file: '../../logs/eureka-server.err.log',
       env: {
-        CONFIG_SERVER_URL: 'http://localhost:8888'
+        ...commonServiceEnv
       }
     },
     {
@@ -57,8 +71,7 @@ module.exports = {
       out_file: '../../logs/api-gateway.out.log',
       error_file: '../../logs/api-gateway.err.log',
       env: {
-        CONFIG_SERVER_URL: 'http://localhost:8888',
-        EUREKA_URL: 'http://localhost:8761/eureka'
+        ...commonServiceEnv
       }
     },
     {
@@ -72,8 +85,7 @@ module.exports = {
       out_file: '../../logs/user-service.out.log',
       error_file: '../../logs/user-service.err.log',
       env: {
-        CONFIG_SERVER_URL: 'http://localhost:8888',
-        EUREKA_URL: 'http://localhost:8761/eureka'
+        ...commonServiceEnv
       }
     },
     {
@@ -87,10 +99,9 @@ module.exports = {
       out_file: '../../logs/product-service.out.log',
       error_file: '../../logs/product-service.err.log',
       env: {
-        CONFIG_SERVER_URL: 'http://localhost:8888',
-        EUREKA_URL: 'http://localhost:8761/eureka',
-        STORAGE_PROVIDER: 'local',
-        LOCAL_STORAGE_DIR: './data/uploads'
+        ...commonServiceEnv,
+        STORAGE_PROVIDER,
+        LOCAL_STORAGE_DIR: process.env.LOCAL_STORAGE_DIR || './data/uploads'
       }
     },
     {
@@ -104,9 +115,8 @@ module.exports = {
       out_file: '../../logs/order-service.out.log',
       error_file: '../../logs/order-service.err.log',
       env: {
-        CONFIG_SERVER_URL: 'http://localhost:8888',
-        EUREKA_URL: 'http://localhost:8761/eureka'
+        ...commonServiceEnv
       }
     }
   ]
-};
+}

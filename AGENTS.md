@@ -7,6 +7,7 @@ This file is for agentic coding assistants working in this repository.
 - This is a multi-module layout but *not* a single Maven reactor build.
 - Each service is an independent Spring Boot app with its own `pom.xml`.
 - Shared runtime configuration is served via Spring Cloud Config from `config-repo/`.
+- **GCP VM deploy:** see `docs/GCP-VM-DEPLOYMENT.md` and `deploy/gcp-vm.env.example` (e.g. public IP `35.194.27.132`, gateway on port **8080**).
 
 ## Build / Run / Lint / Test
 
