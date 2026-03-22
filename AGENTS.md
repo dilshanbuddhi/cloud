@@ -4,8 +4,8 @@ This file is for agentic coding assistants working in this repository.
 
 ## Quick Orientation
 
-- This is a multi-module layout but *not* a single Maven reactor build.
-- Each service is an independent Spring Boot app with its own `pom.xml`.
+- Multi-module Maven project: root `pom.xml` (`eca-cloud`) is the **parent** for all services (Java **25** + `maven-compiler-plugin` via `pluginManagement`). Build from repo root: `mvn clean package -DskipTests`.
+- Each service still has its own `pom.xml` under `platform/` or `services/`.
 - Shared runtime configuration is served via Spring Cloud Config from `config-repo/`.
 - **GCP VM deploy:** see `docs/GCP-VM-DEPLOYMENT.md` and `deploy/gcp-vm.env.example` (e.g. public IP `35.194.27.132`, gateway on port **8080**).
 

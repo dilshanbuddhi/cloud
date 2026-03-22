@@ -68,6 +68,22 @@ mvn -f services/order-service/pom.xml -DskipTests package
 4. `mkdir -p logs`
 5. Start **config-server** first, then **eureka**, then the rest (PM2 starts all; ensure `ecosystem` start order or use `pm2 start` delays if needed).
 
+## One-command run (GCP SSH terminal)
+
+මට ඔබේ VM terminal එක **direct** open කරන්න බැහැ. Repo එක VM එකට copy/git කරලා SSH ඇතුළට:
+
+```bash
+cd /path/to/Cloud    # your clone path
+chmod +x scripts/gcp-vm-run.sh
+./scripts/gcp-vm-run.sh
+```
+
+This will: build all jars (unless `SKIP_BUILD=1`), start Config → Eureka → services → Gateway, tail-ready health checks.  
+Logs: `logs/*.log`. Stop: `STOP_ONLY=1 ./scripts/gcp-vm-run.sh`.  
+With PM2: `npm i -g pm2` then `USE_PM2=1 ./scripts/gcp-vm-run.sh`.
+
+Optional env file: `cp deploy/gcp-vm.env.example deploy/gcp-vm.env` then edit and `source` before the script (see comments in `scripts/gcp-vm-run.sh`).
+
 ## Smoke test after deploy
 
 ```bash

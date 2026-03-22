@@ -3,18 +3,19 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.ijse.eca</groupId>
+    <parent>
+        <groupId>com.ijse.eca</groupId>
+        <artifactId>eca-cloud</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
     <artifactId>api-gateway</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
     <name>api-gateway</name>
 
     <properties>
-        <java.version>25</java.version>
         <spring.boot.version>3.5.0</spring.boot.version>
         <spring.cloud.version>2025.0.0</spring.cloud.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.compiler.release>${java.version}</maven.compiler.release>
     </properties>
 
     <dependencyManagement>
@@ -62,6 +63,10 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
