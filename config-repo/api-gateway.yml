@@ -2,6 +2,7 @@
 # Spring Cloud Gateway 2025 + spring-cloud-starter-gateway-server-webflux:
 # routes / CORS / default-filters live under spring.cloud.gateway.server.webflux
 server:
+  address: 0.0.0.0
   port: 8080
 
 spring:
