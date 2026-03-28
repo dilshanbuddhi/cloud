@@ -117,3 +117,25 @@ http://35.194.27.132:8080/
 ## Your VM IP
 
 Example public IP used in this doc: **`35.194.27.132`**. Replace if the VM gets a new IP.
+
+## Load balancer + managed instance group (MIG)
+
+Use an **external HTTP(S) load balancer** on port **80** that forwards to instances on **8080** (API Gateway). Health checks should call **`GET /actuator/health`** on port **8080** (Spring Boot actuator on the gateway).
+
+1. **Firewall:** allow **`130.211.0.0/22`** and **`35.191.0.0/16`** to **`tcp:8080`** on instances with tag **`eca-gateway`** (Google health checks and LB → backend traffic).
+2. **Golden image (recommended):** deploy once on a single VM with `scripts/gcp-vm-run.sh` (or PM2), verify `curl -s http://127.0.0.1:8080/actuator/health`, then stop the VM and **create a custom image** from its boot disk. Use that image in an **instance template** so new instances boot with JDK 25, built jars, and repo layout already present.
+3. **Managed instance group:** create an MIG from the template, set **named port** `http:8080`, attach it to a **global backend service** with the HTTP health check above.
+4. **Frontend:** the gateway serves the Mini POS UI from **`/`** with **relative** API paths — it works through the LB without code changes. If you use the standalone **`frontend/index.html`**, keep the API base **same-origin** (empty string) when not using a dev server on port 3000 so calls go to the LB hostname, not `localhost`.
+
+Helper script (from repo root, Cloud Shell or WSL with `gcloud`):
+
+```bash
+chmod +x scripts/gcp-mig-lb-setup.sh
+# Creates firewall rule + health check; prints gcloud for MIG/LB unless you set CREATE_LB=1
+./scripts/gcp-mig-lb-setup.sh
+# After you have a custom image:
+export GOLDEN_IMAGE="projects/YOUR_PROJECT/global/images/eca-cloud-v1"
+CREATE_LB=1 ./scripts/gcp-mig-lb-setup.sh
+```
+
+**Multi-VM note:** each instance currently runs its own Config Server and Eureka; for several backends behind a LB you typically move MySQL to **Cloud SQL**, and align service discovery (single Eureka tier or replace with LB-only routing). Starting with **MIG size 1** plus LB is a valid first step.

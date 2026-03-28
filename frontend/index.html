@@ -195,9 +195,9 @@ th{color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;le
 </div>
 
 <script>
-const API = window.location.port === '3000'
-  ? 'http://localhost:8080'
-  : (window.location.origin.includes('8080') ? '' : 'http://localhost:8080');
+// Dev: static server on :3000 → gateway on 8080. Same-origin otherwise (gateway :8080, LB :80/:443).
+const API =
+  window.location.port === '3000' ? 'http://localhost:8080' : '';
 
 let token = localStorage.getItem('pos_token');
 let currentUser = JSON.parse(localStorage.getItem('pos_user') || 'null');
