@@ -2,7 +2,7 @@ spring:
   application:
     name: user-service
   config:
-    import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
+    import: "optional:configserver:${CONFIG_SERVER_URL:http://34.118.204.224:8888}"
   datasource:
     url: jdbc:mysql://34.171.196.72:3306/userdb?useSSL=true&requireSSL=true&useInformationSchema=false
     username: root

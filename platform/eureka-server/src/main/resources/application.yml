@@ -2,7 +2,7 @@ spring:
   application:
     name: eureka-server
   config:
-    import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
+    import: "optional:configserver:${CONFIG_SERVER_URL:http://34.118.204.224:8888}"
 
 server:
   address: 0.0.0.0

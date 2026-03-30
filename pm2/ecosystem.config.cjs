@@ -18,14 +18,14 @@
     STORAGE_PROVIDER=gcs                  (default below; was wrongly forced to local)
     GOOGLE_APPLICATION_CREDENTIALS=...   (if not using GCE metadata SA)
 
-  VM public IP example: 35.194.27.132 — users open http://<IP>:8080/
+  Static / LB IP example: 34.118.204.224 — users open http://<IP>:8080/ or LB http://<IP>/
 
   Notes:
     - JDK 25 required (match pom.xml). Set JAVA_HOME if `java` is not 25+.
 */
 
 const CONFIG_SERVER_URL = process.env.CONFIG_SERVER_URL || 'http://127.0.0.1:8888'
-// Set EUREKA_URL before pm2 (e.g. source deploy/gcp-vm.env). GCP example: http://34.55.203.126:8761/eureka
+// Set EUREKA_URL before pm2 (e.g. source deploy/gcp-vm.env). Example: http://34.118.204.224:8761/eureka if Eureka is on that host.
 const EUREKA_URL = process.env.EUREKA_URL || 'http://127.0.0.1:8761/eureka'
 const CONFIG_REPO_PATH = process.env.CONFIG_REPO_PATH || '../../config-repo'
 const STORAGE_PROVIDER = process.env.STORAGE_PROVIDER || 'gcs'

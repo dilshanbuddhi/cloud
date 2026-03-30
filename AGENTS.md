@@ -7,7 +7,7 @@ This file is for agentic coding assistants working in this repository.
 - Multi-module Maven project: root `pom.xml` (`eca-cloud`) is the **parent** for all services (Java **25** + `maven-compiler-plugin` via `pluginManagement`). Build from repo root: `mvn clean package -DskipTests`.
 - Each service still has its own `pom.xml` under `platform/` or `services/`.
 - Shared runtime configuration is served via Spring Cloud Config from `config-repo/`.
-- **GCP VM deploy:** see `docs/GCP-VM-DEPLOYMENT.md`, **`docs/GCP-MICROSERVICES-DEPLOYMENT.md`** (Eureka, MIG health, env), and `deploy/gcp-vm.env.example` (e.g. public IP `35.194.27.132`, gateway on port **8080**).
+- **GCP VM deploy:** see `docs/GCP-VM-DEPLOYMENT.md`, **`docs/GCP-MICROSERVICES-DEPLOYMENT.md`** (Eureka, MIG health, env), and `deploy/gcp-vm.env.example` (reserved static IP / LB example `34.118.204.224`, gateway on port **8080** behind LB).
 
 ## Build / Run / Lint / Test
 
