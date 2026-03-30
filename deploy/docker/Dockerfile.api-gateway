@@ -1,0 +1,11 @@
+# Build context: repository root. Run: mvn clean package -DskipTests && docker build -f deploy/docker/Dockerfile.api-gateway -t eca/api-gateway .
+FROM eclipse-temurin:25-jre
+
+ARG ARTIFACT=platform/api-gateway/target/api-gateway-0.1.0-SNAPSHOT.jar
+WORKDIR /app
+
+COPY ${ARTIFACT} /app/app.jar
+
+EXPOSE 8080
+ENV JAVA_OPTS=""
+ENTRYPOINT ["sh", "-c", "exec java ${JAVA_OPTS} -jar /app/app.jar"]

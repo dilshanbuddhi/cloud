@@ -27,9 +27,14 @@ logging:
   level:
     root: INFO
 
+# Eureka: set EUREKA_URL on GCP, e.g. http://<vm-external-ip>:8761/eureka (see docs/GCP-MICROSERVICES-DEPLOYMENT.md)
 eureka:
   instance:
     prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
   client:
     service-url:
       defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
+    # Clients poll registry; Eureka server overrides fetch in eureka-server.yml
+    registry-fetch-interval-seconds: 10

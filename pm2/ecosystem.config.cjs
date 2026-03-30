@@ -10,6 +10,7 @@
   Environment variables (export before pm2 start, or set in shell profile):
     CONFIG_SERVER_URL=http://127.0.0.1:8888
     EUREKA_URL=http://127.0.0.1:8761/eureka
+    # Production (GCP): set EUREKA_URL to http://<public-or-internal-eureka-host>:8761/eureka — not localhost.
     CONFIG_REPO_PATH=../../config-repo   (or absolute path on VM)
     STORAGE_PROVIDER=gcs                  (default below; was wrongly forced to local)
     GOOGLE_APPLICATION_CREDENTIALS=...   (if not using GCE metadata SA)
