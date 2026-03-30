@@ -8,7 +8,8 @@
 #   eureka-url            — Full Eureka URL, e.g. http://203.0.113.5:8761/eureka
 #                           If unset, uses this VM's external IP from metadata:
 #                           http://<external-ip>:8761/eureka
-#   config-server-url     — default: http://127.0.0.1:8888 (same-VM Config Server)
+#   config-server-url     — default: http://127.0.0.1:8888 (platform only). REQUIRED for eca-pm2-ecosystem=services.
+#   eca-pm2-ecosystem     — unset or "all" → pm2/ecosystem.config.cjs | "platform" → ecosystem.platform | "services" → ecosystem.services
 #   eca-skip-build        — set to "1" if jars already in image (only PM2 start)
 #   eca-app-dir           — default: /opt/eca-cloud
 #
@@ -66,6 +67,7 @@ REPO_URL="$(meta eca-repo-url)"
 REPO_BRANCH="$(meta eca-repo-branch)"
 [[ -z "${REPO_BRANCH}" ]] && REPO_BRANCH="main"
 SKIP_BUILD="$(meta eca-skip-build)"
+PM2_TIER="$(meta eca-pm2-ecosystem)"
 
 log "apt update & base packages..."
 apt-get update -y
@@ -83,23 +85,36 @@ fi
 npm install -g pm2
 
 EUREKA_URL_META="$(meta eureka-url)"
-if [[ -n "${EUREKA_URL_META}" ]]; then
-  EUREKA_URL="${EUREKA_URL_META}"
-else
-  EXT_IP="$(external_ip)"
-  if [[ -n "${EXT_IP}" ]]; then
-    EUREKA_URL="http://${EXT_IP}:8761/eureka"
-  else
-    EUREKA_URL="http://127.0.0.1:8761/eureka"
-    log "WARNING: no external IP; EUREKA_URL fallback ${EUREKA_URL}"
-  fi
-fi
-
 CONFIG_SERVER_URL_META="$(meta config-server-url)"
-if [[ -n "${CONFIG_SERVER_URL_META}" ]]; then
+
+if [[ "${PM2_TIER}" == "services" ]]; then
+  if [[ -z "${EUREKA_URL_META}" ]]; then
+    log "ERROR: eca-pm2-ecosystem=services requires metadata eureka-url (e.g. http://10.x.x.x:8761/eureka)"
+    exit 1
+  fi
+  if [[ -z "${CONFIG_SERVER_URL_META}" ]]; then
+    log "ERROR: eca-pm2-ecosystem=services requires metadata config-server-url (e.g. http://10.x.x.x:8888)"
+    exit 1
+  fi
+  EUREKA_URL="${EUREKA_URL_META}"
   CONFIG_SERVER_URL="${CONFIG_SERVER_URL_META}"
 else
-  CONFIG_SERVER_URL="http://127.0.0.1:8888"
+  if [[ -n "${EUREKA_URL_META}" ]]; then
+    EUREKA_URL="${EUREKA_URL_META}"
+  else
+    EXT_IP="$(external_ip)"
+    if [[ -n "${EXT_IP}" ]]; then
+      EUREKA_URL="http://${EXT_IP}:8761/eureka"
+    else
+      EUREKA_URL="http://127.0.0.1:8761/eureka"
+      log "WARNING: no external IP; EUREKA_URL fallback ${EUREKA_URL}"
+    fi
+  fi
+  if [[ -n "${CONFIG_SERVER_URL_META}" ]]; then
+    CONFIG_SERVER_URL="${CONFIG_SERVER_URL_META}"
+  else
+    CONFIG_SERVER_URL="http://127.0.0.1:8888"
+  fi
 fi
 
 mkdir -p "${APP_DIR}" /opt/eca-cloud-logs
@@ -129,6 +144,7 @@ cat >"${ENV_FILE}" <<EOF
 CONFIG_SERVER_URL=${CONFIG_SERVER_URL}
 EUREKA_URL=${EUREKA_URL}
 CONFIG_REPO_PATH=${CONFIG_REPO_PATH}
+SPRING_PROFILES_ACTIVE=prod
 EOF
 log "Wrote ${ENV_FILE}"
 
@@ -141,18 +157,28 @@ fi
 
 chmod +x scripts/gcp-vm-run.sh 2>/dev/null || true
 
-if [[ -f "${APP_DIR}/pm2/ecosystem.config.cjs" ]]; then
-  log "Starting PM2 ecosystem..."
+ECOSYSTEM_FILE="pm2/ecosystem.config.cjs"
+case "${PM2_TIER}" in
+  platform) ECOSYSTEM_FILE="pm2/ecosystem.platform.config.cjs" ;;
+  services) ECOSYSTEM_FILE="pm2/ecosystem.services.config.cjs" ;;
+  all | '') ECOSYSTEM_FILE="pm2/ecosystem.config.cjs" ;;
+  *)
+    log "WARN: unknown eca-pm2-ecosystem='${PM2_TIER}', using all-in-one ecosystem"
+    ECOSYSTEM_FILE="pm2/ecosystem.config.cjs"
+    ;;
+esac
+
+if [[ -f "${APP_DIR}/${ECOSYSTEM_FILE}" ]]; then
+  log "Starting PM2 (${ECOSYSTEM_FILE}, tier=${PM2_TIER:-all})..."
   cd "${APP_DIR}"
-  # PM2 ecosystem uses relative cwd; must run from APP_DIR
   pm2 delete all 2>/dev/null || true
-  pm2 start pm2/ecosystem.config.cjs
+  pm2 start "${ECOSYSTEM_FILE}"
   pm2 save
   # systemd unit for root
   env PATH="${PATH}" pm2 startup systemd -u root --hp /root
   log "PM2 started. journal: pm2 logs ; status: pm2 status"
 else
-  log "No pm2/ecosystem.config.cjs — run scripts/gcp-vm-run.sh manually"
+  log "No ${ECOSYSTEM_FILE} — run scripts/gcp-vm-run.sh manually"
 fi
 
 log "Done. Eureka: ${EUREKA_URL} Config: ${CONFIG_SERVER_URL}"

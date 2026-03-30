@@ -2,6 +2,8 @@
 
 This repository is already structured for **Config Server**, **Eureka**, **API Gateway**, and three services with fixed ports. This guide maps that layout to **Google Compute Engine**, **MIG health checks**, and **production-style Eureka URLs**.
 
+If you split **platform** (Config + Eureka + Gateway) and **microservices** into **two MIGs**, read **`GCP-PLATFORM-AND-SERVICES-MIG.md`** and use **`pm2/ecosystem.platform.config.cjs`** / **`ecosystem.services.config.cjs`**.
+
 ## 1. Project structure (this repo)
 
 | Component | Spring `application.name` | Port | Module path |
@@ -41,6 +43,8 @@ eureka:
 - **Same VM only:** `http://127.0.0.1:8761/eureka` works for registration but does not satisfy a “no localhost in production” policy; use **loopback only for demos** if allowed.
 
 `PM2` / systemd should export `EUREKA_URL` before starting JVMs. Example file: **`deploy/gcp-vm.env`** (see `deploy/gcp-vm.env.example`).
+
+**Profiles:** On GCP set **`SPRING_PROFILES_ACTIVE=prod`** so Config Server serves **`config-repo/application-prod.yml`**, where Eureka `defaultZone` is **`${EUREKA_URL}` only** (no localhost fallback). Locally, omit `prod` so **`application.yml`** keeps **`http://127.0.0.1:8761/eureka`** when `EUREKA_URL` is unset.
 
 ### Registration address (`prefer-ip-address`)
 

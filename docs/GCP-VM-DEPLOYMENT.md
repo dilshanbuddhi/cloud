@@ -4,6 +4,16 @@ Use this before/after copying the repo to a **Google Compute Engine** VM.
 
 For **Eureka URLs, MIG health checks, firewall ports, and troubleshooting**, see **`GCP-MICROSERVICES-DEPLOYMENT.md`**. For **instance-template first boot** (clone, JDK 25, Maven, PM2), use **`scripts/gcp-instance-startup.sh`** as GCE metadata `startup-script`.
 
+For **two MIGs** (platform vs microservices), load balancer placement, and metadata keys, see **`GCP-PLATFORM-AND-SERVICES-MIG.md`**.
+</think>
+
+That line was wrong file - GCP-VM-DEPLOYMENT doesn't have that exact block. Let me read and fix
+</think>
+
+
+<｜tool▁calls▁begin｜><｜tool▁call▁begin｜>
+Read
+
 ## Is the project “ready”?
 
 | Area | Status | Notes |

@@ -1,0 +1,6 @@
+# Profile: prod — activate with SPRING_PROFILES_ACTIVE=prod (see deploy/gcp-vm.env on GCP).
+# Eureka URL must be set in the environment (e.g. http://YOUR_PUBLIC_IP:8761/eureka). No localhost default.
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL}

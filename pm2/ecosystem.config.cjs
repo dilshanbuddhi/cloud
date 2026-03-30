@@ -7,6 +7,9 @@
     3) Optional: source deploy/gcp-vm.env (see docs/GCP-VM-DEPLOYMENT.md)
     4) pm2 start pm2/ecosystem.config.cjs
 
+  Split MIGs: pm2/ecosystem.platform.config.cjs | ecosystem.services.config.cjs
+  (docs/GCP-PLATFORM-AND-SERVICES-MIG.md, metadata eca-pm2-ecosystem on template)
+
   Environment variables (export before pm2 start, or set in shell profile):
     CONFIG_SERVER_URL=http://127.0.0.1:8888
     EUREKA_URL=http://127.0.0.1:8761/eureka
@@ -29,7 +32,10 @@ const STORAGE_PROVIDER = process.env.STORAGE_PROVIDER || 'gcs'
 
 const commonServiceEnv = {
   CONFIG_SERVER_URL,
-  EUREKA_URL
+  EUREKA_URL,
+  ...(process.env.SPRING_PROFILES_ACTIVE
+    ? { SPRING_PROFILES_ACTIVE: process.env.SPRING_PROFILES_ACTIVE }
+    : {})
 }
 
 module.exports = {
