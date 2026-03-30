@@ -35,6 +35,6 @@ eureka:
     lease-expiration-duration-in-seconds: 30
   client:
     service-url:
-      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
+      defaultZone: ${EUREKA_URL:http://34.55.203.126:8761/eureka}
     # Clients poll registry; Eureka server overrides fetch in eureka-server.yml
     registry-fetch-interval-seconds: 10
