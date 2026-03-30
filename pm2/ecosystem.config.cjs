@@ -22,6 +22,7 @@
 */
 
 const CONFIG_SERVER_URL = process.env.CONFIG_SERVER_URL || 'http://127.0.0.1:8888'
+// Set EUREKA_URL before pm2 (e.g. source deploy/gcp-vm.env). GCP example: http://34.55.203.126:8761/eureka
 const EUREKA_URL = process.env.EUREKA_URL || 'http://127.0.0.1:8761/eureka'
 const CONFIG_REPO_PATH = process.env.CONFIG_REPO_PATH || '../../config-repo'
 const STORAGE_PROVIDER = process.env.STORAGE_PROVIDER || 'gcs'
